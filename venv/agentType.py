@@ -15,11 +15,13 @@ import asyncio
 import threading
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.prompts import MessagesPlaceholder
+from langsmith.client import Client
+from langchain.callbacks.tracers.langchain import wait_for_all_tracers
 
 load_dotenv()
 
 
-
+client = Client()
 if threading.current_thread() is not threading.main_thread():
     try:
         asyncio.get_running_loop()
@@ -153,15 +155,18 @@ agent = initialize_agent(
     memory=memory
     )
 
-def hr_assistant_bot(user_input: str):
+def hr_assistant_bot(user_input: str , session_name: Optional[str] = "default_session"):
+    if session_name:
+        os.environ["LANGCHAIN_SESSION"] = session_name
     response = agent.invoke({"input": user_input})
+    wait_for_all_tracers() 
     #print(memory)
     #print(memory.load_memory_variables({"input": "What are the data security methods this company uses?"}))
     return response['output']
 
 #print(hr_assistant_bot("What are the data security methods this company uses?"))
 
-#print(hr_assistant_bot("Generate mails for all employees who took more than 5 days leave this quarter."))
+print(hr_assistant_bot("Generate mails for all employees who took more than 5 days leave this quarter."))
 #print(hr_assistant_bot("dear ma'am , i am Kushal ,  i want leave from because of my sister marriage can u please aprove my leave request , convert these into json format"))
 
 
