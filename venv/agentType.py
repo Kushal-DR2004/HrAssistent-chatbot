@@ -18,6 +18,11 @@ from langchain_core.prompts import MessagesPlaceholder
 from langsmith.client import Client
 from langchain.callbacks.tracers.langchain import wait_for_all_tracers
 
+import scrubadub
+scrubber = scrubadub.Scrubber()
+#scrubber.add_detector(scrubadub.detectors.DateOfBirthDetector)
+scrubber.remove_detector(scrubadub.detectors.EmailDetector)
+
 load_dotenv()
 
 
@@ -156,6 +161,8 @@ agent = initialize_agent(
     )
 
 def hr_assistant_bot(user_input: str , session_name: Optional[str] = "default_session"):
+    user_input = scrubadub.clean(user_input)
+    print(user_input)
     if session_name:
         os.environ["LANGCHAIN_SESSION"] = session_name
     response = agent.invoke({"input": user_input})
@@ -166,7 +173,7 @@ def hr_assistant_bot(user_input: str , session_name: Optional[str] = "default_se
 
 #print(hr_assistant_bot("What are the data security methods this company uses?"))
 
-print(hr_assistant_bot("Generate mails for all employees who took more than 5 days leave this quarter."))
+#print(hr_assistant_bot("Generate mails for all employees who took more than 5 days leave this quarter."))
 #print(hr_assistant_bot("dear ma'am , i am Kushal ,  i want leave from because of my sister marriage can u please aprove my leave request , convert these into json format"))
 
 
